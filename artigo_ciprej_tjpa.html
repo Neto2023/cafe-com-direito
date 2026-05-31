@@ -25,6 +25,18 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+a {
+  color: var(--gold-lt);
+  text-decoration: underline;
+  text-decoration-color: rgba(232,184,75,.4);
+  text-underline-offset: 3px;
+  transition: color .2s, text-decoration-color .2s;
+}
+a:hover {
+  color: var(--gold-pale);
+  text-decoration-color: var(--gold-lt);
+}
+
 
 html { scroll-behavior: smooth; }
 
@@ -86,8 +98,8 @@ nav {
 .nav-brand span { color: var(--gold-lt); }
 .nav-tag {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: .16em;
+  font-size: 13px;
+  letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--paper-faint);
 }
@@ -102,8 +114,8 @@ nav {
 }
 .hero-kicker {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: .28em;
+  font-size: 13px;
+  letter-spacing: .2em;
   text-transform: uppercase;
   color: var(--gold-lt);
   display: flex;
@@ -152,12 +164,12 @@ nav {
 .meta-item { display: flex; flex-direction: column; gap: 3px; }
 .meta-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: .2em;
+  font-size: 12px;
+  letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--paper-faint);
 }
-.meta-value { font-size: 14px; font-weight: 500; color: var(--paper); }
+.meta-value { font-size: 16px; font-weight: 500; color: var(--paper); }
 
 /* ── ARTICLE ── */
 article {
@@ -177,7 +189,7 @@ article {
 }
 .section-num {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: .18em;
   color: var(--gold);
   margin-top: 8px;
@@ -228,7 +240,7 @@ em { font-style: italic; }
 }
 .norm-block p {
   font-style: italic;
-  font-size: 16px;
+  font-size: 18px;
   color: var(--paper-dim);
   margin: 0;
   line-height: 1.65;
@@ -246,8 +258,8 @@ em { font-style: italic; }
 .highlight p {
   font-family: 'Fraunces', serif;
   font-style: italic;
-  font-size: 22px;
-  line-height: 1.4;
+  font-size: 24px;
+  line-height: 1.42;
   color: var(--paper);
   margin: 0;
   letter-spacing: -.01em;
@@ -273,26 +285,26 @@ em { font-style: italic; }
 }
 .tech-card .tc-tag {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: .2em;
+  font-size: 13px;
+  letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--gold-lt);
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .tech-card h3 {
   font-family: 'Fraunces', serif;
   font-weight: 700;
-  font-size: 17px;
+  font-size: 21px;
   color: var(--paper);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   letter-spacing: -.01em;
 }
 .tech-card p {
-  font-size: 14px;
-  color: var(--paper-faint);
+  font-size: 16px;
+  color: var(--paper-dim);
   margin: 0;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 /* ── DATES BLOCK ── */
@@ -314,16 +326,16 @@ em { font-style: italic; }
 .date-d {
   padding: 18px 20px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-size: 15px;
   color: var(--gold-lt);
-  letter-spacing: .04em;
+  letter-spacing: .02em;
   border-right: 1px solid var(--line);
   display: flex;
   align-items: center;
 }
 .date-t {
   padding: 18px 20px;
-  font-size: 15px;
+  font-size: 17px;
   color: var(--paper-dim);
 }
 .date-t strong { color: var(--paper); }
@@ -357,8 +369,8 @@ em { font-style: italic; }
   margin-top: 2px;
 }
 .practice-item .pi-text {
-  font-size: 16.5px;
-  color: rgba(242,235,224,.85);
+  font-size: 18px;
+  color: rgba(242,235,224,.88);
   padding-top: 6px;
 }
 .practice-item .pi-text strong { color: var(--paper); }
@@ -389,9 +401,9 @@ em { font-style: italic; }
   font-style: normal;
 }
 .closing p {
-  font-size: 17px;
+  font-size: 19px;
   color: var(--paper-dim);
-  max-width: 520px;
+  max-width: 540px;
   margin: 0 auto;
 }
 
@@ -430,13 +442,13 @@ em { font-style: italic; }
 }
 .author-role {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: .12em;
+  font-size: 13px;
+  letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--gold-lt);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
-.author-bio { font-size: 14px; color: var(--paper-faint); line-height: 1.6; }
+.author-bio { font-size: 16px; color: var(--paper-dim); line-height: 1.65; }
 
 /* ── SOURCES ── */
 .sources {
@@ -446,17 +458,17 @@ em { font-style: italic; }
 }
 .sources-title {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: .24em;
+  font-size: 13px;
+  letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--paper-faint);
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 .sources p {
-  font-size: 13px;
-  color: var(--paper-faint);
-  line-height: 1.6;
-  margin-bottom: 6px;
+  font-size: 16px;
+  color: var(--paper-dim);
+  line-height: 1.65;
+  margin-bottom: 10px;
 }
 
 /* ── DIVIDER ── */
@@ -698,13 +710,13 @@ em { font-style: italic; }
   <!-- FONTES -->
   <div class="sources reveal">
     <div class="sources-title">Fontes e referências normativas</div>
-    <p>Portaria 2120/2026-GP, de 22/05/2026 · TJPA · DJ nº 8321/2026</p>
-    <p>Portaria 2121/2026-GP, de 22/05/2026 · TJPA · DJ nº 8321/2026</p>
-    <p>Portaria 1357/2026-GP, de 28/04/2026, republicada · TJPA · DJ nº 8304/2026</p>
-    <p>Portaria 2261/2026-GP, de 27/05/2026 · TJPA · DJ nº 8324/2026</p>
-    <p>Lei Estadual nº 11.452, de 6 de maio de 2026 · TJPA / Alepa</p>
-    <p>Notícia oficial OAB-PA, 28/05/2026</p>
-    <p style="margin-top:14px;font-style:italic;">Nota de transparência: todas as afirmações sobre tecnologia e automação estão baseadas no texto literal dos normativos oficiais listados acima. Nenhuma interpretação especulativa foi adicionada.</p>
+    <p><a href="https://www.tjpa.jus.br/sei-autenticador" target="_blank" rel="noopener">Portaria 2120/2026-GP, de 22/05/2026</a> · TJPA · DJ nº 8321/2026 · Código verificador: 0000645694</p>
+    <p><a href="https://www.tjpa.jus.br/sei-autenticador" target="_blank" rel="noopener">Portaria 2121/2026-GP, de 22/05/2026</a> · TJPA · DJ nº 8321/2026 · Código verificador: 0000645728</p>
+    <p><a href="https://www.tjpa.jus.br/sei-autenticador" target="_blank" rel="noopener">Portaria 1357/2026-GP, de 28/04/2026, republicada</a> · TJPA · DJ nº 8304/2026 · Código verificador: 0000594338</p>
+    <p><a href="https://www.tjpa.jus.br/sei-autenticador" target="_blank" rel="noopener">Portaria 2261/2026-GP, de 27/05/2026</a> · TJPA · DJ nº 8324/2026</p>
+    <p><a href="https://www.al.pa.gov.br" target="_blank" rel="noopener">Lei Estadual nº 11.452, de 6 de maio de 2026</a> · TJPA / Alepa</p>
+    <p><a href="https://oabpa.org.br/2026/05/28/funcionamento-da-ciprej-sera-apresentado-a-advocacia-em-evento-na-oab-pa/" target="_blank" rel="noopener">Notícia oficial OAB-PA, 28/05/2026</a></p>
+    <p style="margin-top:16px;font-style:italic;">Nota de transparência: todas as afirmações sobre tecnologia e automação estão baseadas no texto literal dos normativos oficiais listados acima. Nenhuma interpretação especulativa foi adicionada.</p>
   </div>
 
 </article>
