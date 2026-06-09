@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O assistente que cria assistentes: engenharia de prompts para advogados | Café com Direito</title>
+<meta name="description" content="Como criar assistentes de IA especializados no ChatGPT usando engenharia de prompts: o engenheiro de prompts, as metodologias L.O.U.S.A. e IRAC/CRAC e a arquitetura de duas camadas (instruções + arquivos .md), com segurança antialucinação e LGPD.">
+<style>
+  :root{
+    --preto:#0F0F0F;
+    --dourado:#C69B00;
+    --azul:#0D47A1;
+    --branco:#FFFFFF;
+    --cinza-card:#1E1E1E;
+    --cinza-medio:#2D2D2D;
+    --cinza-texto:#CCCCCC;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    font-family:'Segoe UI',Calibri,Helvetica,Arial,sans-serif;
+    background:var(--preto);
+    color:var(--branco);
+    line-height:1.7;
+    font-size:17px;
+  }
+  .wrap{max-width:780px;margin:0 auto;padding:0 22px;}
+  header{
+    background:linear-gradient(160deg,#0F0F0F 0%,#1a1a1a 100%);
+    border-bottom:3px solid var(--dourado);
+    padding:54px 0 40px;
+    text-align:center;
+  }
+  .selo{
+    display:inline-block;
+    color:var(--dourado);
+    font-size:13px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    font-weight:700;
+    margin-bottom:18px;
+  }
+  header h1{
+    font-size:33px;
+    line-height:1.25;
+    color:var(--branco);
+    font-weight:800;
+    max-width:660px;
+    margin:0 auto;
+  }
+  header h1 .destaque{color:var(--dourado);}
+  .meta-live{
+    margin-top:22px;
+    color:var(--cinza-texto);
+    font-size:15px;
+  }
+  .meta-live strong{color:var(--branco);}
+  main{padding:44px 0 20px;}
+  .lead{
+    font-size:20px;
+    color:var(--cinza-texto);
+    border-left:4px solid var(--dourado);
+    padding-left:20px;
+    margin-bottom:38px;
+  }
+  h2{
+    font-size:25px;
+    color:var(--dourado);
+    margin:46px 0 16px;
+    font-weight:800;
+    line-height:1.3;
+  }
+  h3{
+    font-size:19px;
+    color:var(--branco);
+    margin:26px 0 10px;
+    font-weight:700;
+  }
+  p{margin-bottom:18px;color:var(--cinza-texto);}
+  p strong{color:var(--branco);}
+  .destaque-txt{color:var(--dourado);font-weight:700;}
+  .card{
+    background:var(--cinza-card);
+    border:1px solid var(--cinza-medio);
+    border-radius:12px;
+    padding:24px 26px;
+    margin:24px 0;
+  }
+  .card.ouro{border-left:4px solid var(--dourado);}
+  .card.azul{border-left:4px solid var(--azul);}
+  .definicao{
+    background:rgba(198,155,0,.10);
+    border:1px dashed var(--dourado);
+    border-radius:10px;
+    padding:16px 20px;
+    margin:20px 0;
+    font-size:16px;
+  }
+  .definicao b{color:var(--dourado);}
+  ul.lista{list-style:none;margin:14px 0;}
+  ul.lista li{
+    padding:9px 0 9px 30px;
+    position:relative;
+    color:var(--cinza-texto);
+    border-bottom:1px solid var(--cinza-medio);
+  }
+  ul.lista li:last-child{border-bottom:none;}
+  ul.lista li::before{
+    content:"⚖️";
+    position:absolute;
+    left:0;top:9px;
+  }
+  .num{counter-reset:passo;list-style:none;margin:14px 0;}
+  .num li{
+    position:relative;
+    padding:14px 0 14px 56px;
+    margin-bottom:8px;
+    color:var(--cinza-texto);
+  }
+  .num li::before{
+    counter-increment:passo;
+    content:counter(passo);
+    position:absolute;left:0;top:10px;
+    width:36px;height:36px;
+    background:var(--dourado);
+    color:var(--preto);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:17px;
+  }
+  .num li strong{color:var(--branco);}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:22px 0;
+    font-size:15px;
+    border-radius:10px;
+    overflow:hidden;
+  }
+  th{
+    background:var(--dourado);
+    color:var(--preto);
+    padding:13px 14px;
+    text-align:left;
+    font-weight:800;
+  }
+  td{
+    padding:12px 14px;
+    color:var(--cinza-texto);
+    border-bottom:1px solid var(--cinza-medio);
+  }
+  tr:nth-child(even) td{background:var(--cinza-card);}
+  tr:nth-child(odd) td{background:var(--cinza-medio);}
+  td b{color:var(--dourado);}
+  .arvore{
+    background:#000;
+    border:1px solid var(--cinza-medio);
+    border-radius:10px;
+    padding:20px 24px;
+    margin:22px 0;
+    font-family:'Courier New',monospace;
+    font-size:14px;
+    color:var(--cinza-texto);
+    line-height:1.9;
+    overflow-x:auto;
+  }
+  .arvore .lab{color:var(--dourado);font-weight:700;}
+  .alerta{
+    background:rgba(13,71,161,.18);
+    border:1px solid var(--azul);
+    border-radius:12px;
+    padding:22px 24px;
+    margin:30px 0;
+  }
+  .alerta h3{margin-top:0;color:var(--dourado);}
+  .marcador{
+    display:inline-block;
+    background:#3a1212;
+    border:1px solid #a33;
+    color:#ff8a8a;
+    padding:2px 10px;
+    border-radius:6px;
+    font-family:'Courier New',monospace;
+    font-size:13px;
+  }
+  .cta-box{
+    background:linear-gradient(135deg,#1a1500 0%,#0F0F0F 100%);
+    border:2px solid var(--dourado);
+    border-radius:16px;
+    padding:34px 28px;
+    text-align:center;
+    margin:48px 0 30px;
+  }
+  .cta-box h2{color:var(--dourado);margin-top:0;}
+  .cta-box .horario{
+    font-size:22px;
+    color:var(--branco);
+    font-weight:800;
+    margin:10px 0 18px;
+  }
+  .cta-box .acao{color:var(--cinza-texto);font-size:16px;font-style:italic;}
+  .cta-box .acao b{color:var(--dourado);font-style:normal;}
+  .credito{
+    font-size:15px;
+    color:#999;
+    border-top:1px solid var(--cinza-medio);
+    padding-top:20px;
+    margin-top:30px;
+  }
+  footer{
+    border-top:2px solid var(--dourado);
+    margin-top:30px;
+    padding:30px 0 50px;
+    text-align:center;
+  }
+  .assinatura{color:var(--dourado);font-weight:800;font-size:17px;}
+  .assinatura span{
+    display:block;color:var(--cinza-texto);
+    font-weight:400;font-size:14px;margin-top:4px;
+  }
+  .tags{margin-top:16px;color:#777;font-size:13px;word-spacing:4px;}
+  @media(max-width:600px){
+    header h1{font-size:25px;}
+    h2{font-size:21px;}
+    body{font-size:16px;}
+    .lead{font-size:18px;}
+    .arvore{font-size:12px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <span class="selo">Café com Direito</span>
+    <h1>O assistente que cria assistentes: <span class="destaque">engenharia de prompts</span> para advogados</h1>
+    <p class="meta-live">Como criar assistentes de IA especializados, do zero ao engenheiro de prompts</p>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <p class="lead">Existe uma dor que atravessa a advocacia inteira: o tempo consumido redigindo minutas e petições repetitivas. E existe um anseio que vem junto: usar a inteligência artificial para resolver isso, sem cair em respostas genéricas ou inseguras. Este artigo mostra, na prática, o caminho que ensino no Café com Direito. E ele não passa por programar, passa por aprender a instruir. O segredo não é criar um assistente por vez, é criar o assistente que cria todos os outros.</p>
+
+  <h2>Antes de tudo: o ChatGPT pode ser o seu professor</h2>
+  <p>A primeira lição desta jornada não é técnica, é de postura. Ninguém precisa de um curso para começar. Abra uma conversa no ChatGPT e pergunte, com essas palavras mesmo: "como eu crio um GPT personalizado?". Ele vai te explicar o passo a passo. Foi assim que eu aprendi tudo o que sei sobre a ferramenta: perguntando a ela própria.</p>
+  <p>Guarde essa ideia, porque ela muda tudo: <span class="destaque-txt">você não precisa saber a resposta, precisa saber a pergunta.</span></p>
+
+  <h2>O que é um "GPT personalizado"</h2>
+  <p>O ChatGPT comum responde de forma genérica. Um <strong>GPT personalizado</strong> é o mesmo ChatGPT, mas com um manual de instruções fixo que você escreve uma vez, e ele passa a seguir em toda conversa. Pense num estagiário que, em vez de ser reorientado a cada tarefa, já chega sabendo o padrão do seu escritório.</p>
+  <div class="definicao"><b>Onde se cria:</b> é preciso uma conta paga do ChatGPT. No menu, vá em "Explorar GPTs", depois "Criar", e use a aba "Configure" para ter controle total das instruções.</div>
+  <p>Aqui entra o princípio mais importante de todos:</p>
+  <div class="card ouro">
+    <h3>Quanto mais específica a função, menor a alucinação</h3>
+    <p><span class="destaque-txt">Alucinação</span> é quando a IA inventa uma informação com cara de verdade, por exemplo, cita uma jurisprudência, um número de processo ou um artigo de lei que não existe. Um assistente que tenta "fazer todo o Direito" erra muito mais. Um assistente que só faz petição inicial trabalhista, com regras estreitas e bem definidas, erra muito menos. Especialização é segurança.</p>
+  </div>
+
+  <h2>O pulo do gato: o engenheiro de prompts</h2>
+  <div class="definicao"><b>O que é um prompt:</b> é a instrução, o comando que você dá para a IA. <b>Engenharia de prompts</b> é a arte de escrever essas instruções de forma estruturada, para obter respostas consistentes e confiáveis.</div>
+  <p>Agora a virada que dá nome a este artigo. Em vez de montar cada assistente na unha, você cria <strong>um único GPT cuja especialidade é escrever a arquitetura de outros assistentes</strong>. Ele é, literalmente, um GPT que cria GPTs.</p>
+  <p>Na prática, funciona assim: você diz "preciso de um assistente que redija procurações" ou "que analise contratos bancários", e o engenheiro de prompts devolve toda a estrutura de instruções pronta, para você copiar e colar num GPT novo.</p>
+  <div class="card azul">
+    <h3>Por que começar pela "personalidade"?</h3>
+    <p>Parece estranho dar personalidade a um programa, mas faz diferença real. Quando você define quem o assistente é (seu papel, seu tom, seus limites e o que ele nunca pode fazer), a IA responde de forma mais coerente e dentro do personagem certo, em vez de soltar respostas genéricas. É o alicerce sobre o qual todo o resto é construído.</p>
+  </div>
+  <p>A frase que resume a estratégia: <span class="destaque-txt">depois que você tem um engenheiro de prompts, você nunca mais cria um assistente do zero. Você delega a criação.</span></p>
+
+  <h2>Por que dividir o trabalho em etapas (os métodos)</h2>
+  <p>A IA, como uma pessoa, trabalha melhor quando o serviço é fatiado em passos. Pedir "faça a petição" de uma vez gera confusão; mandar seguir um roteiro de raciocínio gera qualidade. Esse roteiro tem nome, e na advocacia usamos métodos consagrados.</p>
+
+  <h3>Método IRAC (e sua variação CRAC)</h3>
+  <p>O <strong>IRAC</strong> é o raciocínio jurídico clássico, transformado em trilho para a IA não se perder:</p>
+  <table>
+    <tr><th>Sigla</th><th>Etapa</th><th>O que faz</th></tr>
+    <tr><td><b>I</b></td><td>Issue (questão)</td><td>Identifica o problema jurídico</td></tr>
+    <tr><td><b>R</b></td><td>Rule (regra)</td><td>Levanta a norma e o entendimento aplicável</td></tr>
+    <tr><td><b>A</b></td><td>Analysis (análise)</td><td>Confronta os fatos com a regra e as provas</td></tr>
+    <tr><td><b>C</b></td><td>Conclusion (conclusão)</td><td>Conclui de forma prudente</td></tr>
+  </table>
+  <p>O IRAC é ideal para petições e manifestações. A variação <strong>CRAC</strong> (Conclusion, Rule, Analysis, Conclusion) começa pela conclusão e é mais indicada para pareceres e relatórios executivos, em que o leitor quer a resposta primeiro.</p>
+
+  <h3>Método L.O.U.S.A.</h3>
+  <p>O <strong>L.O.U.S.A.</strong> é o método que adoto para organizar o pensamento jurídico em cinco fases, do recebimento do caso à entrega final:</p>
+  <table>
+    <tr><th>Letra</th><th>Etapa</th><th>Aplicação na IA jurídica</th></tr>
+    <tr><td><b>L</b></td><td>Levantar</td><td>Identificar fatos e contexto do caso</td></tr>
+    <tr><td><b>O</b></td><td>Organizar</td><td>Estruturar as informações com lógica</td></tr>
+    <tr><td><b>U</b></td><td>Unir</td><td>Conectar fatos, normas e fundamentos</td></tr>
+    <tr><td><b>S</b></td><td>Soar</td><td>Humanizar a linguagem, com tom ético e profissional</td></tr>
+    <tr><td><b>A</b></td><td>Ajustar</td><td>Revisar e aperfeiçoar, entregando sem alucinações</td></tr>
+  </table>
+
+  <h2>A arquitetura de duas camadas (instruções + arquivos .md)</h2>
+  <p>Aqui está o detalhe que separa o amador do profissional. O campo de instruções do GPT tem um <strong>limite de 8 mil caracteres</strong>, e esse teto é igual para todos os planos pagos, não muda entre Plus e Pro. Toda a metodologia de um assistente jurídico robusto não cabe nesse espaço. A solução é dividir o conhecimento em duas camadas.</p>
+
+  <div class="card ouro">
+    <h3>Camada 1 — Campo de instruções (o coração)</h3>
+    <p>Aqui vai só o essencial e permanente: a identidade do assistente, as regras de comportamento, o método de raciocínio (IRAC/L.O.U.S.A.), as regras antialucinação e o formato das respostas. É o que o GPT lê sempre.</p>
+  </div>
+  <div class="card azul">
+    <h3>Camada 2 — Arquivos .md (a biblioteca)</h3>
+    <div class="definicao" style="margin-top:0"><b>O que é um arquivo .md:</b> é um arquivo de texto simples, em formato chamado Markdown, que organiza conteúdo com títulos e listas de maneira leve e fácil de editar. Não exige programa especial, abre em qualquer editor de texto.</div>
+    <p>Nesses arquivos vai todo o conteúdo extenso: modelos de petição, teses jurídicas, checklists de prova, guias de redação, cálculos. O GPT consulta esses documentos na hora de trabalhar, por exemplo, antes de redigir uma peça.</p>
+  </div>
+
+  <p>A analogia que fecha o conceito: <span class="destaque-txt">o campo de instruções é o cérebro do assistente; os arquivos .md são a estante de livros que ele consulta.</span> Não cabe a biblioteca inteira dentro da cabeça, por isso a gente separa. E há um ganho prático: para atualizar uma tese, você edita só um arquivo, sem reescrever todo o comportamento do assistente.</p>
+
+  <p>Uma arquitetura de GPT jurídico robusto costuma ficar assim:</p>
+  <div class="arvore">
+<span class="lab">INSTRUÇÕES</span> (o coração, até 8.000 caracteres)
+ ├── Identidade do assistente
+ ├── Método de raciocínio (IRAC / L.O.U.S.A.)
+ ├── Regras antialucinação
+ ├── Ética e LGPD
+ └── Formato das respostas
+
+<span class="lab">ARQUIVOS .md</span> (a biblioteca consultável)
+ ├── 01_metodologia.md
+ ├── 02_peticoes.md
+ ├── 03_jurisprudencia.md
+ ├── 04_teses.md
+ ├── 05_checklists_provas.md
+ ├── 06_calculos.md
+ ├── 07_fluxos_processuais.md
+ └── 08_modelos_praticos.md
+  </div>
+
+  <h2>A cadeia antialucinação: o que torna isso seguro para a advocacia</h2>
+  <p>Esta é a parte inegociável. Como a IA pode inventar uma jurisprudência, o assistente precisa nascer com regras de segurança embutidas: seguir uma hierarquia de fontes oficiais, exigir número de processo, relator e data, e, quando a informação não estiver confirmada, marcar expressamente em vez de afirmar. Um marcador simples resolve:</p>
+  <p style="text-align:center"><span class="marcador">[NÃO VALIDADA – PESQUISAR NO SITE DO TRIBUNAL]</span></p>
+
+  <div class="alerta">
+    <h3>Ética e LGPD não são detalhe</h3>
+    <p>Dado de cliente é dado sensível. Antes de inserir qualquer informação numa ferramenta de IA, anonimize o que for identificável e trate o dado com o mesmo cuidado do processo físico sobre a mesa. A tecnologia amplia o trabalho do advogado; ela não transfere a responsabilidade. O dever de sigilo e a revisão técnica permanecem, integralmente, com o profissional.</p>
+  </div>
+
+  <div class="cta-box">
+    <h2>Em resumo</h2>
+    <p class="acao" style="font-style:normal;color:var(--cinza-texto)">Você não precisa virar programador para colocar a inteligência artificial a serviço do seu escritório. Precisa entender a lógica: comece criando o engenheiro de prompts, deixe que ele construa cada assistente especializado, separe o conhecimento em duas camadas e blinde tudo com a cadeia antialucinação. A partir daí, automatizar minutas e petições deixa de ser promessa e vira rotina, com a segurança e a ética que a advocacia exige.</p>
+  </div>
+
+  <p class="credito">As metodologias L.O.U.S.A. e IRAC/CRAC aqui apresentadas são amplamente aplicadas e difundidas pelo Dr. Marcílio Guedes Drummond, referência nacional em Engenharia Jurídica de Prompts. Este material tem caráter informativo e educacional; recomenda-se sempre a revisão humana por advogado habilitado antes de qualquer uso processual.</p>
+
+  <div style="margin-top:40px;background:var(--cinza-card);border:1px solid var(--cinza-medio);border-top:4px solid var(--dourado);border-radius:12px;padding:28px 30px;display:flex;gap:24px;align-items:flex-start;">
+    <div style="flex-shrink:0;width:64px;height:64px;background:var(--dourado);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;">⚖️</div>
+    <div>
+      <p style="color:var(--branco);font-weight:800;font-size:18px;margin-bottom:6px;">Dr. Abrahão Neto</p>
+      <p style="color:var(--cinza-texto);font-size:15px;margin-bottom:14px;">Advogado especializado em Direito Civil, Bancário, Digital, Propriedade Intelectual e Automação Jurídica. Atua com foco em IA aplicada à advocacia, ética profissional e inovação tecnológica. Criador e presidente da Comissão de Direito Digital, Marketing Jurídico e Inteligência Artificial da OAB Marabá (PA).</p>
+      <p style="color:var(--dourado);font-style:italic;font-size:15px;margin-bottom:10px;border-left:3px solid var(--dourado);padding-left:12px;">"Advogar é pensar com método, agir com ética e inovar com propósito."</p>
+      <p style="color:#999;font-size:14px;font-weight:600;">OAB/PA 35.865</p>
+    </div>
+  </div>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="tags">#cafecomdireito #advocaciadigital #inteligenciaartificial #engenhariadeprompts #marabapa #advogadobancario</p>
+  </div>
+</footer>
+
+</body>
+</html>
